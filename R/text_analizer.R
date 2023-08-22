@@ -18,71 +18,129 @@ text_analizer <- function() {
                 "shinythemes")
   lapply(Packages, library, character.only = TRUE)
 
-  ui <- fluidPage(
-    theme = shinytheme("flatly"),
-    titlePanel("Text App"),
-    sidebarLayout(
-      sidebarPanel(
-        textAreaInput("input_text", label = "Enter Text:", width = "100%", height = "200px"),
-        tags$style(
-          HTML("#input_text { width: 100%; }")
-        ),
-        textInput("highlight_words", label = "Highlight Words (comma-separated):"),
-        br(),
-        actionButton("highlight_positive", "Highlight Positive Words"),
-        br(),
-        br(),
-        actionButton("highlight_negative", "Highlight Negative Words"),
-        br(),
-        br(),
-      ),
-      mainPanel(
-        tabsetPanel(
-          tabPanel("Highlight Text",
-                   h3("Summary Text:"),
-                   reactableOutput("summary_table"),
-                   h3("Main Text:"),
-                   uiOutput("highlighted_text")
-          ),
-          tabPanel("Text Analyzer",
-                   h3("Explore Text:"),
-                   align = "center",
-                   actionButton("word_freq_button", "Show Word Frequency"),
+  ui <- navbarPage(
+    theme = shinythemes::shinytheme("flatly"),
 
-                   fluidRow(
-                     column(6,
-                            reactableOutput("word_freq_table"),
-                            align = "center"
-                     ),
-                     column(6,
-                            wordcloud2Output("cloud"),
-                            align = "center"
-                     )
-                   )
-          ),
-          tabPanel("Sentiment Analyzer",
-                   h3("Sentiment Exploration:"),
-                   actionButton("analyze_sentiment_button", "Analyze Sentiment"),
-                   align = "center",
-                   fluidRow(
-                     column(12,
-                            htmlOutput("sentiment_analysis_result"),  # Render the HTML content here
-                            align = "center"
-                     )
+    ###############################################.
+    ## Header ----
+    ###############################################.
+
+    "Text Analyzer App",
+
+    # titlePanel("Text Analyzer App"),
+    # hr(),
+    tabPanel("Data", icon = icon("table"), value = "table",
+             sidebarLayout(
+               sidebarPanel(
+                 textAreaInput("input_text", label = "Enter Text:", width = "100%", height = "200px"),
+                 tags$style(
+                   HTML("#input_text { width: 100%; }")
+                 ),
+                 textInput("highlight_words", label = "Highlight Words (comma-separated):"),
+                 p("Enter the keyword(s) to be highlighted in the text, based on the valence."),
+                 actionButton("highlight_positive", "Highlight Positive Words"),
+                 br(),
+                 br(),
+                 actionButton("highlight_negative", "Highlight Negative Words"),
+                 br(),
+                 br(),
+
+               ),
+               mainPanel(
+                 p("This application allows you to copy a text from any type of file to run
+        a basic and exploratory text analysis."),
+                 p(tags$ul(tags$li("The first tab focuses on displaying the text loaded in the application.
+                        This tab can provides a brief summary of the text loaded, and also allows
+                        to the user highlight keywords, or positive and negative words"),
+                           tags$li("The second set presents a basic text analysis, showing the
+                        words frequency of the text loaded, along with a visualization
+                        of the data."),
+                           tags$li("The third set presents a sentiment analysis based on the
+                        package sentimentr, where the user can check the valence by
+                         sentence, and the tendency of the valence across the text."))),
+                 hr(),
+                 tabsetPanel(
+                   tabPanel("Highlight Text",
+                            h3("Summary Text:"),
+                            reactableOutput("summary_table"),
+                            h3("Main Text:"),
+                            uiOutput("highlighted_text")
                    ),
-                   br(),
-                   fluidRow(
-                     column(2),
-                     column(8,
-                            plotOutput("plot_sentiment"),
-                            align = "center"
-                     ),
-                     column(2)
-                   )
-          )
+                   tabPanel("Text Analyzer",
+                            h3("Explore Text:"),
+                            align = "center",
+                            actionButton("word_freq_button", "Show Word Frequency"),
 
-        )
-      )
+                            fluidRow(
+                              column(6,
+                                     reactableOutput("word_freq_table"),
+                                     align = "center"
+                              ),
+                              column(6,
+                                     wordcloud2Output("cloud"),
+                                     align = "center"
+                              )
+                            )
+                   ),
+                   tabPanel("Sentiment Analyzer",
+                            h3("Sentiment Exploration:"),
+                            actionButton("analyze_sentiment_button", "Analyze Sentiment"),
+                            align = "center",
+                            fluidRow(
+                              column(12,
+                                     htmlOutput("sentiment_analysis_result"),  # Render the HTML content here
+                                     align = "center"
+                              )
+                            ),
+                            br(),
+                            fluidRow(
+                              column(2),
+                              column(8,
+                                     plotOutput("plot_sentiment"),
+                                     align = "center"
+                              ),
+                              column(2)
+                            )
+                   )
+
+                 )
+               )
+             )
+    ),
+
+
+    tabPanel("About", icon = icon("info"), value = "info",
+             fluidRow(
+               column(1,  style = "width: 5px;"),
+               column(11,
+                      h3("Welcome to the Text Analysis Shiny App Package.",
+                         class = "data-main-title"),
+                      p("The Text Analysis Shiny App Package is a comprehensive R package that provides an interactive Shiny web application for analyzing and visualizing text data. This package enables users to perform sentiment analysis, word frequency analysis, and highlight specific words in the input text.",
+                        "If you want access to the repository of this package, see ",
+                        a("here.", href = "https://github.com/IsaacBravo/TextAnalizer/tree/master",
+                          target = "_blank",
+                          class = "here-pop-up",
+                          id = "here",
+                          bsPopover(id="here", title = '<span class="pop"><b>GitHub Repository</b></span>',
+                                    content = '<span class="pop-content">Check it out!</span>',
+                                    trigger = "hover",
+                                    placement = "right",
+                                    options = list(container = "body"))
+                        )),
+                      br()
+               )),
+             fluidRow(
+               column(1,  style = "width: 5px;"),
+               column(11,
+                      h4("Features"),
+                      p(tags$ul(tags$li("Sentiment Analysis: Analyze the sentiment of the provided text using the sentimentr package, visualizing sentiments at both the overall and sentence levels."),
+                                tags$li("Word Frequency Analysis: Generate a word frequency table and visualize it using an interactive word cloud, allowing users to explore the most common words in the input text."),
+                                tags$li("Word Highlighting: Highlight positive and negative words in the text with customizable background and text colors for quick identification."))),
+                      hr(),
+                      HTML("<p>(Made by <a href='https://twitter.com/IsaacBr45419303'>@IsaacBr</a>. Source code <a href='https://github.com/IsaacBravo/TextAnalizer'>on GitHub</a>.)</p>")
+               )),
+
+
     )
   )
 
