@@ -9,14 +9,12 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 text_analizer <- function() {
-  # Load packages
-  Packages <- c("tidyverse", "magrittr", "tidytext", "gt", "DT", "shiny",
-                "shinythemes", "shinyBS", "shinyWidgets", "plotly", "ggpol",
-                "reshape2", "textdata", "ggnewscale", "shinydashboard",
-                "shinycssloaders", "reactable", "tidytext", "tm",
-                "wordcloud2", "sentimentr", "RColorBrewer", "stringr",
-                "shinythemes")
-  lapply(Packages, library, character.only = TRUE)
+
+  source("setup.R")
+  source("ui_sidebar.R")
+  source("ui_about.R")
+
+  load_libraries()
 
   ui <- navbarPage(
     theme = shinythemes::shinytheme("flatly"),
@@ -27,124 +25,28 @@ text_analizer <- function() {
 
     "Text Analyzer App",
 
-    # titlePanel("Text Analyzer App"),
-    # hr(),
+    ###############################################.
+    ## Sidebar & Data Panel ----
+    ###############################################.
+
     tabPanel("Data", icon = icon("table"), value = "table",
-             sidebarLayout(
-               sidebarPanel(
-                 textAreaInput("input_text", label = "Enter Text:", width = "100%", height = "200px"),
-                 tags$style(
-                   HTML("#input_text { width: 100%; }")
-                 ),
-                 textInput("highlight_words", label = "Highlight Words (comma-separated):"),
-                 p("Enter the keyword(s) to be highlighted in the text, based on the valence."),
-                 actionButton("highlight_positive", "Highlight Positive Words"),
-                 br(),
-                 br(),
-                 actionButton("highlight_negative", "Highlight Negative Words"),
-                 br(),
-                 br(),
+             sidebar_ui()),
 
-               ),
-               mainPanel(
-                 p("This application allows you to copy a text from any type of file to run
-        a basic and exploratory text analysis."),
-                 p(tags$ul(tags$li("The first tab focuses on displaying the text loaded in the application.
-                        This tab can provides a brief summary of the text loaded, and also allows
-                        to the user highlight keywords, or positive and negative words"),
-                           tags$li("The second set presents a basic text analysis, showing the
-                        words frequency of the text loaded, along with a visualization
-                        of the data."),
-                           tags$li("The third set presents a sentiment analysis based on the
-                        package sentimentr, where the user can check the valence by
-                         sentence, and the tendency of the valence across the text."))),
-                 hr(),
-                 tabsetPanel(
-                   tabPanel("Highlight Text",
-                            h3("Summary Text:"),
-                            reactableOutput("summary_table"),
-                            h3("Main Text:"),
-                            uiOutput("highlighted_text")
-                   ),
-                   tabPanel("Text Analyzer",
-                            h3("Explore Text:"),
-                            align = "center",
-                            actionButton("word_freq_button", "Show Word Frequency"),
-
-                            fluidRow(
-                              column(6,
-                                     reactableOutput("word_freq_table"),
-                                     align = "center"
-                              ),
-                              column(6,
-                                     wordcloud2Output("cloud"),
-                                     align = "center"
-                              )
-                            )
-                   ),
-                   tabPanel("Sentiment Analyzer",
-                            h3("Sentiment Exploration:"),
-                            actionButton("analyze_sentiment_button", "Analyze Sentiment"),
-                            align = "center",
-                            fluidRow(
-                              column(12,
-                                     htmlOutput("sentiment_analysis_result"),  # Render the HTML content here
-                                     align = "center"
-                              )
-                            ),
-                            br(),
-                            fluidRow(
-                              column(2),
-                              column(8,
-                                     plotOutput("plot_sentiment"),
-                                     align = "center"
-                              ),
-                              column(2)
-                            )
-                   )
-
-                 )
-               )
-             )
-    ),
-
+    ###############################################.
+    ## About Panel ----
+    ###############################################.
 
     tabPanel("About", icon = icon("info"), value = "info",
-             fluidRow(
-               column(1,  style = "width: 5px;"),
-               column(11,
-                      h3("Welcome to the Text Analysis Shiny App Package.",
-                         class = "data-main-title"),
-                      p("The Text Analysis Shiny App Package is a comprehensive R package that provides an interactive Shiny web application for analyzing and visualizing text data. This package enables users to perform sentiment analysis, word frequency analysis, and highlight specific words in the input text.",
-                        "If you want access to the repository of this package, see ",
-                        a("here.", href = "https://github.com/IsaacBravo/TextAnalizer/tree/master",
-                          target = "_blank",
-                          class = "here-pop-up",
-                          id = "here",
-                          bsPopover(id="here", title = '<span class="pop"><b>GitHub Repository</b></span>',
-                                    content = '<span class="pop-content">Check it out!</span>',
-                                    trigger = "hover",
-                                    placement = "right",
-                                    options = list(container = "body"))
-                        )),
-                      br()
-               )),
-             fluidRow(
-               column(1,  style = "width: 5px;"),
-               column(11,
-                      h4("Features"),
-                      p(tags$ul(tags$li("Sentiment Analysis: Analyze the sentiment of the provided text using the sentimentr package, visualizing sentiments at both the overall and sentence levels."),
-                                tags$li("Word Frequency Analysis: Generate a word frequency table and visualize it using an interactive word cloud, allowing users to explore the most common words in the input text."),
-                                tags$li("Word Highlighting: Highlight positive and negative words in the text with customizable background and text colors for quick identification."))),
-                      hr(),
-                      HTML("<p>(Made by <a href='https://twitter.com/IsaacBr45419303'>@IsaacBr</a>. Source code <a href='https://github.com/IsaacBravo/TextAnalizer'>on GitHub</a>.)</p>")
-               )),
-
-
+             ui_about_part1(),
+             ui_about_part2()
     )
   )
 
   server <- function(input, output, session) {
+
+    ###############################################.
+    ## ObserveEvents ----
+    ###############################################.
 
     observeEvent(input$highlight_positive, {
       positive_words <- tidytext::get_sentiments("bing") %>%
@@ -161,14 +63,53 @@ text_analizer <- function() {
       highlight_text(negative_words, "#500000", "#FFD9D9")
     })
 
+    observeEvent(input$plot_freq_button, {
+      req(input$input_text)  # Ensure input is available
+      plt_table_udipe()
+      word_frequency_cloud()
+    })
+
     observeEvent(input$word_freq_button, {
       req(input$input_text)  # Ensure input is available
       word_frequency()
+      table_entities_udipe()
     })
+
+    observeEvent(input$input_text, {
+      # Get the sentences from the input text
+      req(input$input_text)
+
+      sentences_df <-
+        sentiment(input$input_text) %>%
+        rename("sentence_ID" = "element_id") %>%
+        rename("text_ID" = "sentence_id")
+
+      # Output the extracted sentences
+      output$table_sentences <- renderReactable({
+        reactable(sentences_df, showPageInfo = TRUE, searchable = TRUE,
+                  filterable = TRUE, showPageSizeOptions = TRUE,
+                  rownames = FALSE,
+                  pageSizeOptions = c(12, 24),
+                  defaultPageSize = 12, bordered = TRUE, striped = TRUE, highlight = TRUE)
+      })
+    })
+
+    observeEvent(input$analyze_sentiment_button, {
+      req(input$input_text)  # Ensure input is available
+
+      input$input_text %>%
+        sentiment_by() %>%
+        sentimentr:: highlight()
+    })
+
 
     observe({
       highlight_text()
     })
+
+    ###############################################.
+    ## Server Functions ----
+    ###############################################.
 
     highlight_text <- function(words = NULL, background_color = "#E2F0D9", text_color = "red", append = FALSE) {
       input_text <- input$input_text
@@ -199,7 +140,7 @@ text_analizer <- function() {
       # Calculate summary statistics
       word_count <- length(unlist(strsplit(input_text, "\\s+")))
       char_count <- nchar(gsub("\\s+", "", input_text))
-      sentence_count <- length(gregexpr("[.!?]", input_text)[[1]]) - 1
+      sentence_count <- length(gregexpr("[.!?]", input_text)[[1]])
 
       data.frame(
         "Statistic" = c("Word Count", "Character Count", "Sentence Count"),
@@ -236,7 +177,45 @@ text_analizer <- function() {
       })
     }
 
-    output$cloud <- renderWordcloud2({
+    table_entities_udipe <- function() {
+      req(input$input_text)  # Ensure input is available
+
+      annotation <- cnlp_annotate(input = input$input_text)
+
+      annotation_df <- annotation$token %>%
+        select(id = doc_id, token, lemma, entity = upos)
+
+      output$table_entities <- renderReactable({
+        reactable(annotation_df, showPageInfo = TRUE, searchable = TRUE,
+                  filterable = TRUE, showPageSizeOptions = TRUE,
+                  rownames = FALSE,
+                  pageSizeOptions = c(12, 24),
+                  defaultPageSize = 12, bordered = TRUE, striped = TRUE, highlight = TRUE)
+      })
+    }
+
+    plt_table_udipe <- function() {
+      req(input$input_text)  # Ensure input is available
+
+      annotation <- cnlp_annotate(input = input$input_text)
+
+      output$plot_entities <- renderPlot({
+
+        annotation$token %>%
+          select(id = doc_id, token, lemma, entity = upos) %>%
+          group_by(entity) %>%
+          summarize(total = n()) %>%
+          mutate(entity = fct_reorder(entity, total)) %>%
+          ggplot( aes(x=entity, y=total)) +
+          geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+          coord_flip() +
+          xlab("Entities") +
+          xlab("Frequency") +
+          theme_bw()
+      })
+    }
+
+    word_frequency_cloud <- function() {
       req(input$input_text)
       input_text <- tolower(input$input_text)
 
@@ -259,9 +238,13 @@ text_analizer <- function() {
       min_freq <- 2
       filtered_word_freq_df <- all_word_freq_df[all_word_freq_df$Frequency >= min_freq, ]
 
-      wordcloud2::wordcloud2(filtered_word_freq_df)
+      output$cloud <- renderWordcloud2({wordcloud2::wordcloud2(filtered_word_freq_df)})
 
-    })
+    }
+
+    ###############################################.
+    ## server Outputs ----
+    ###############################################.
 
     output$plot_sentiment <- renderPlot({
       req(input$input_text)
@@ -277,11 +260,9 @@ text_analizer <- function() {
 
     })
 
-
     output$summary_table <- renderReactable({
       reactable(highlight_text(), showPageInfo = FALSE, searchable = FALSE, bordered = TRUE, striped = TRUE, highlight = TRUE)
     })
-
 
     output$summary_sent_table <- renderReactable({
       req(input$input_text)
@@ -294,28 +275,15 @@ text_analizer <- function() {
           showPageInfo = FALSE, searchable = FALSE, bordered = TRUE, striped = TRUE, highlight = TRUE)
     })
 
-
     output$highlighted_text <- renderUI({
       highlight_text(append = TRUE)
       HTML(highlighted_text)
     })
 
-
-    output$sentiment_analysis_result <- renderText({
-      req(input$analyze_sentiment_button)  # Ensure the button is clicked
-
-      # Call the highlight function to generate the HTML content
-      sentiment_highlighted_text <-
-        get_sentences(input$input_text) %>%
-        sentiment_by() %>%
-        highlight()
-
-      # Return the HTML content
-      return(sentiment_highlighted_text)
-    })
-
   }
 
+
   shinyApp(ui, server)
+
 
 }
