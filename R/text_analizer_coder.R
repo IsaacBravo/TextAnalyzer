@@ -8,7 +8,7 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-text_analizer <- function() {
+text_analizer_coder <- function() {
   # Load packages
   Packages <- c("tidyverse", "magrittr", "tidytext", "gt", "DT", "shiny",
                 "shinyBS", "shinyWidgets", "plotly", "ggpol",
