@@ -546,6 +546,8 @@ text_analizer_coder <- function() {
       }
     }
 
+
+
     word_frequency <- function() {
       req(input$input_text)  # Ensure input is available
 
@@ -802,7 +804,14 @@ text_analizer_coder <- function() {
     })
 
     output$summary_table <- renderReactable({
-      reactable(highlight_text(), showPageInfo = FALSE, searchable = FALSE, bordered = TRUE, striped = TRUE, highlight = TRUE)
+      input_text <- input$input_text
+      word_count <- length(unlist(strsplit(input_text, "\\s+")))
+      char_count <- nchar(gsub("\\s+", "", input_text))
+      sentence_count <- length(gregexpr("[.!?]", input_text)[[1]])
+
+      reactable(data.frame(
+        "Statistic" = c("Word Count", "Character Count", "Sentence Count"),
+        "Count" = c(word_count, char_count, sentence_count)), showPageInfo = FALSE, searchable = FALSE, bordered = TRUE, striped = TRUE, highlight = TRUE)
     })
 
     output$summary_sent_table <- renderReactable({
