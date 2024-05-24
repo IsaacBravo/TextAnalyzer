@@ -81,3 +81,4 @@ Packages <- c("tidyverse", "magrittr", "tidytext", "gt", "DT", "shiny",
             "shinythemes", "cleanNLP", "topicmodels", "ggwordcloud")
 lapply(Packages, library, character.only = TRUE)
 ```
+"# TextAnalyzer" 
