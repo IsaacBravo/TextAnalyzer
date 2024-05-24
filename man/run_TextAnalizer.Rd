@@ -2,11 +2,11 @@
 \alias{hello}
 \title{Hello, World!}
 \usage{
-hello()
+run_TextAnalizer()
 }
 \description{
 Prints 'Hello, world!'.
 }
 \examples{
-hello()
+run_TextAnalizer()
 }
