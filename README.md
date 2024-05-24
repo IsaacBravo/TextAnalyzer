@@ -1,18 +1,24 @@
 # Text Analysis Shiny App Package
 
-The Text Analyzer Shiny App is an interactive tool for analyzing and visualizing text data. It allows users to perform various text analysis tasks, including sentiment analysis, word frequency analysis, and word highlighting. This README provides an overview of the app's features, how to use it, and how to get started.
+The Text Analyzer Shiny App is an interactive tool for analyzing and visualizing text data. It allows users to perform various text analysis tasks, including sentiment analysis, word frequency analysis, and topic modelling. This README provides an overview of the app's features, how to use it, and how to get started.
 
 ## Features
 
--   **Sentiment Analysis:** Analyze the sentiment of the provided text using the sentimentr package. Visualize sentiments at both the overall and sentence levels.
+-   **Select data type:** The user can decide whether to copy a text fragment or import a data frame (.xlsx, .csv, .txt, .json).
 
--   **Word Frequency Analysis:** Generate a word frequency table and visualize it using an interactive word cloud. Explore the most common words in the input text.
+-   **Data Overview:** Provides a first overview of the main data elements (Frequencies, Graphs, Entity Object Recognition).
 
--   **Word Highlighting:** Highlight positive and negative words in the text with customizable background and text colors for quick identification.
+-   **Sentiment Analysis:** Explore some common sentiment dictionaries to explore the data (Bing, NRC, Loughran-McDonald & Afinn).
 
--   **Interactive Visualization:** The Shiny app provides an interactive and user-friendly interface for performing text analysis tasks, allowing users to adjust settings and explore results in real-time.
+-   **Emotion Analysis:** Check other levels in your data using dictionaries to detect emotions such as NRC & Loughran-McDonald.
 
--   **Topic Analysis (Experimental):** Perform topic modeling using Latent Dirichlet Allocation (LDA). Visualize topics and their associated terms.
+-   **Arousal & Valence Analysis:** Explore levels of arousal, valence and dominance in your data.
+
+-   **Topic Modelling:** Run an LDA model evaluating the best number of K for your data, & explore some visualisations.
+
+-   **SeededLDA:** Explore your data in depth by defining your own topics and test them on the dataset.
+
+
 
 ## Installation
 
