@@ -1,4 +1,4 @@
-Package: TextAnalizer
+Package: TextAnalyzer
 Type: Package
 Title: A 'Shiny' Application for Running Multiple Text Analysis Techniques
 Version: 0.1.0
