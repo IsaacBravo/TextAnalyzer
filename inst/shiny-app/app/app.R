@@ -3920,7 +3920,7 @@ server <- function(input, output, session) {
     dfmt_file <- data_seededlda_file()
 
     # Load the dictionary
-    dict_topic <- dictionary(file = "./dictionary.yml")
+    dict_topic <- dictionary(file = "./lexicons/dictionary.yml")
 
     # Run seeded LDA
     lda_seed_file <- seededlda::textmodel_seededlda(dfmt_file, dict_topic, batch_size = 0.01, auto_iter = TRUE,
