@@ -2041,7 +2041,7 @@ server <- function(input, output, session) {
     dfmt <- data_seededlda()
 
     # Load the dictionary
-    dict_topic <- dictionary(file = "./dictionary.yml")
+    dict_topic <- dictionary(file = "./lexicons/dictionary.yml")
 
     # Run seeded LDA
     lda_seed <- seededlda::textmodel_seededlda(dfmt, dict_topic, batch_size = 0.01, auto_iter = TRUE, verbose = TRUE)
