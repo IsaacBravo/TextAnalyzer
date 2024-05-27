@@ -1688,7 +1688,12 @@ server <- function(input, output, session) {
 
     # Prepare for LDA
     corpus <- corpus(sentences)
-    dfm <- dfm(corpus, remove = stopwords("english"), remove_punct = TRUE)
+    toks <- tokens(corpus, remove_punct = TRUE, remove_symbols = TRUE,
+                   remove_numbers = TRUE, remove_url = TRUE)
+    dfmt <- dfm(toks) |>
+      dfm_remove(stopwords("en")) |>
+      dfm_remove("*@*") |>
+      dfm_trim(max_docfreq = 0.1, docfreq_type = "prop")
 
     # Convert the DFM to a format for topicmodels
     forTM <- convert(dfm, to = "topicmodels")
