@@ -1,11 +1,11 @@
-Package: TextAnalizer
+Package: TextAnalyzer
 Type: Package
 Title: A 'Shiny' Application for Running Multiple Text Analysis Techniques
 Version: 0.1.0
 Date: 2024-05-24
 Author: c(person("Isaac", "Bravo", email = "isaac.bravo.21@gmail.com", comment = c(ORCID = "0009-0009-3005-6228")))
-URL: https://github.com/IsaacBravo/TextAnalizer
-BugReports: https://github.com/IsaacBravo/TextAnalizer/issues
+URL: https://github.com/IsaacBravo/TextAnalyzer
+BugReports: https://github.com/IsaacBravo/TextAnalyzer/issues
 Maintainer: The package maintainer <isaac.bravo.21@gmail.com>
 Description: This Shiny App is designed to help you import, process, and analyze text data from your file or text efficiently. 
              It provides a user-friendly interface to perform various tasks related to text analysis, guided search, and more.
