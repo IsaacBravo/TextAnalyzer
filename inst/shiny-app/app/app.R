@@ -1696,7 +1696,7 @@ server <- function(input, output, session) {
       dfm_trim(max_docfreq = 0.1, docfreq_type = "prop")
 
     # Convert the DFM to a format for topicmodels
-    forTM <- convert(dfm, to = "topicmodels")
+    forTM <- convert(dfmt, to = "topicmodels")
 
     # forTM <- sentences |> as.data.frame() |> rename("text" = "sentences")
 
