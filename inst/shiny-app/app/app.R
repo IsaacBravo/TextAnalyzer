@@ -150,6 +150,24 @@ ui <- fluidPage(
       .inline-columns {
         display: inline-block;
       }
+            .btn-summary {
+        color: #000;
+        background-color: #00bc8c;
+        border-radius: 20px;
+      }
+      .btn-summary:hover {
+        background-color: #025839; /* Green */
+        color: white;
+      }
+      .btn-warning-new {
+        color: #000;
+        background-color: #f0ad4e;
+        border-radius: 20px;
+      }
+      .btn-warning-new:hover {
+        background-color: #995e0d;
+        color: #000;
+      }
     '))),
 
   theme = bslib::bs_theme(
@@ -166,7 +184,7 @@ ui <- fluidPage(
         condition = "input.input_type == 'Text'",
         textAreaInput("input_text", label = "Enter Text:", width = "100%", height = "200px"),
         hr(),
-        div(style="text-align: center;", actionButton("reset_button", p("Reset", icon("refresh")))),
+        div(style="text-align: center;", actionButton("reset_button", p("Reset", icon("refresh")), class = "btn-warning-new")),
         hr(),
         tags$style(
           HTML("#input_text { width: 100%; }")
@@ -175,7 +193,7 @@ ui <- fluidPage(
         condition = "input.input_type == 'File'",
         fileInput("upload", NULL, buttonLabel = "Upload...", accept = c(".csv", ".xls", ".xlsx", ".json", ".rds", ".rdata")),
         hr(),
-        div(style="text-align: center;", actionButton("reset_button_file", p("Reset", icon("refresh"))))
+        div(style="text-align: center;", actionButton("reset_button_file", p("Reset", icon("refresh")), class = "btn-warning-new"))
 
       )
 
@@ -202,11 +220,11 @@ ui <- fluidPage(
                    hr(),
                    fluidRow(
                      column(1),
-                     column(3, actionButton("summary_button", "Show Summary Text")),
+                     column(3, actionButton("summary_button", "Show Summary Text", class = "btn-summary")),
                      column(1),
-                     column(3, actionButton("word_freq_button", "Show Entities & Frequencies")),
+                     column(3, actionButton("word_freq_button", "Show Entities & Frequencies", class = "btn-summary")),
                      column(1),
-                     column(3, actionButton("word_plot_button", "Show Interactive Visual")),
+                     column(3, actionButton("word_plot_button", "Show Interactive Visual", class = "btn-summary")),
                      column(1)
                    ),
                    hr(),
@@ -226,13 +244,13 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("bing_button", "Bing")),
+                     column(1, actionButton("bing_button", "Bing", class = "btn-summary")),
                      column(1),
-                     column(1, actionButton("nrc_button", "NRC")),
+                     column(1, actionButton("nrc_button", "NRC", class = "btn-summary")),
                      column(1),
-                     column(2, actionButton("loughran_button", "Loughran-McDonald")),
+                     column(2, actionButton("loughran_button", "Loughran-McDonald", class = "btn-summary")),
                      column(1),
-                     column(1, actionButton("afinn_button", "AFINN")),
+                     column(1, actionButton("afinn_button", "AFINN", class = "btn-summary")),
                      column(2)
                    ),
                    br(),
@@ -266,9 +284,9 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(3),
-                     column(1, actionButton("nrc_emotion_button", "NRC")),
+                     column(1, actionButton("nrc_emotion_button", "NRC", class = "btn-summary")),
                      column(3),
-                     column(2, actionButton("loughran_emotion_button", "Loughran-McDonald")),
+                     column(2, actionButton("loughran_emotion_button", "Loughran-McDonald", class = "btn-summary")),
                      column(3)
                    ),
                    br(),
@@ -287,11 +305,11 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("arousal_button", "Arousal Level")),
+                     column(1, actionButton("arousal_button", "Arousal Level", class = "btn-summary")),
                      column(2),
-                     column(1, actionButton("valence_button", "Valence Level")),
+                     column(1, actionButton("valence_button", "Valence Level", class = "btn-summary")),
                      column(2),
-                     column(1, actionButton("dominance_button", "Dominance Level")),
+                     column(1, actionButton("dominance_button", "Dominance Level", class = "btn-summary")),
                      column(2)
                    ),
                    br(),
@@ -310,7 +328,7 @@ ui <- fluidPage(
                             p(HTML("<b>Check the best number of topics for your data:</b>")),
                             br(),
                             align = "center",
-                            actionButton("lda_test_button", "Check Number of Topics")),
+                            actionButton("lda_test_button", "Check Number of Topics", class = "btn-summary")),
                      column(3, br(),
                             sliderInput("numTopics",
                             p(HTML("<b>Select the number of topics that you want to check in your data:</b>")),
@@ -322,12 +340,12 @@ ui <- fluidPage(
                             p(HTML("<b>Run LDA Topic Model:</b>")),
                             align = "center",
                             br(),
-                            actionButton("lda_button", "Run LDA Model")),
+                            actionButton("lda_button", "Run LDA Model", class = "btn-summary")),
                      column(3, br(),
                             p(HTML("<b>Check Topic Evaluation:</b>")),
                             align = "center",
                             br(),
-                            actionButton("lda_evaluation_button", "Run Evaluation Model")),
+                            actionButton("lda_evaluation_button", "Run Evaluation Model", class = "btn-summary")),
                    ),
                    br(),
                    uiOutput("test_k_plot"),
@@ -359,7 +377,7 @@ ui <- fluidPage(
                      conditionalPanel(
                        condition = "input.dict_type === 'default_dictionary'",
                        column(12, align = "center",
-                              actionButton("seededlda_button_file_default", "Run Seeded LDA Model"))
+                              actionButton("seededlda_button_file_default", "Run Seeded LDA Model", class = "btn-summary"))
                      ),
 
                      # Conditional panel for creating a new dictionary
@@ -369,7 +387,7 @@ ui <- fluidPage(
                        uiOutput("customDictionaryUI"),
 
                        # Button to trigger dictionary creation and display
-                       actionButton("create_dict", "Create/Display Dictionary", style = "margin-top: 20px;"),
+                       actionButton("create_dict", "Create/Display Dictionary", class = "btn-summary", style = "margin-top: 20px;"),
 
                        # Output area for displaying the dictionary
                        br(),
@@ -379,7 +397,7 @@ ui <- fluidPage(
                          column(3)),
                        br(),
                        fluidRow(column(12, align = "center",
-                                       actionButton("seededlda_button_file_custom", "Run Seeded LDA Model")))
+                                       actionButton("seededlda_button_file_custom", "Run Seeded LDA Model", class = "btn-summary")))
                      )
                    ),
                    br(),
@@ -410,13 +428,13 @@ ui <- fluidPage(
                    ),
                    hr(),
                    fluidRow(
-                     column(2, actionButton("show_table_button", "Show Data")),
+                     column(2, actionButton("show_table_button", "Show Data", class = "btn-summary")),
                      column(1),
-                     column(2, actionButton("summary_file_button", "Show Summary Data")),
+                     column(2, actionButton("summary_file_button", "Show Summary Data", class = "btn-summary")),
                      column(1),
-                     column(2, actionButton("word_freq_file_button", "Show Entities & Frequencies")),
+                     column(2, actionButton("word_freq_file_button", "Show Entities & Frequencies", class = "btn-summary")),
                      column(1),
-                     column(2, actionButton("word_plot_file_button", "Show Interactive Visual")),
+                     column(2, actionButton("word_plot_file_button", "Show Interactive Visual", class = "btn-summary")),
                    ),
                    fluidRow(
                      column(2),
@@ -445,13 +463,13 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("bing_button_file", "Bing")),
+                     column(1, actionButton("bing_button_file", "Bing"), class = "btn-summary"),
                      column(1),
-                     column(1, actionButton("nrc_button_file", "NRC")),
+                     column(1, actionButton("nrc_button_file", "NRC", class = "btn-summary")),
                      column(1),
-                     column(2, actionButton("loughran_button_file", "Loughran-McDonald")),
+                     column(2, actionButton("loughran_button_file", "Loughran-McDonald", class = "btn-summary")),
                      column(1),
-                     column(1, actionButton("afinn_button_file", "AFINN")),
+                     column(1, actionButton("afinn_button_file", "AFINN", class = "btn-summary")),
                      column(2)
                    ),
                    fluidRow(
@@ -483,9 +501,9 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(3),
-                     column(1, actionButton("nrc_emotion_button_file", "NRC")),
+                     column(1, actionButton("nrc_emotion_button_file", "NRC", class = "btn-summary")),
                      column(3),
-                     column(2, actionButton("loughran_emotion_button_file", "Loughran-McDonald")),
+                     column(2, actionButton("loughran_emotion_button_file", "Loughran-McDonald", class = "btn-summary")),
                      column(3)
                    ),
                    fluidRow(
@@ -511,11 +529,11 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("arousal_button_file", "Arousal Level")),
+                     column(1, actionButton("arousal_button_file", "Arousal Level", class = "btn-summary")),
                      column(2),
-                     column(1, actionButton("valence_button_file", "Valence Level")),
+                     column(1, actionButton("valence_button_file", "Valence Level", class = "btn-summary")),
                      column(2),
-                     column(1, actionButton("dominance_button_file", "Dominance Level")),
+                     column(1, actionButton("dominance_button_file", "Dominance Level", class = "btn-summary")),
                      column(2)
                    ),
                    fluidRow(
@@ -541,7 +559,7 @@ ui <- fluidPage(
                             p(HTML("<b>Check the best number of topics for your data:</b>")),
                             br(),
                             align = "center",
-                            actionButton("lda_test_button_file", "Check Number of Topics")),
+                            actionButton("lda_test_button_file", "Check Number of Topics", class = "btn-summary")),
                      column(3, br(),
                             sliderInput("numTopics2",
                                         p(HTML("<b>Select the number of topics that you want to check in your data:</b>")),
@@ -553,12 +571,12 @@ ui <- fluidPage(
                             p(HTML("<b>Run LDA Topic Model:</b>")),
                             align = "center",
                             br(),
-                            actionButton("lda_button_file", "Run LDA Model")),
+                            actionButton("lda_button_file", "Run LDA Model", class = "btn-summary")),
                      column(2, br(),
                             p(HTML("<b>Check Topic Evaluation:</b>")),
                             align = "center",
                             br(),
-                            actionButton("lda_evaluation_button_file", "Run Evaluation Model")),
+                            actionButton("lda_evaluation_button_file", "Run Evaluation Model", class = "btn-summary")),
                    ),
 
                    br(),
@@ -595,7 +613,7 @@ ui <- fluidPage(
                      conditionalPanel(
                        condition = "input.dict_type2 === 'default_dictionary'",
                        column(12, align = "center",
-                              actionButton("seededlda_button_file_default2", "Run Seeded LDA Model"))
+                              actionButton("seededlda_button_file_default2", "Run Seeded LDA Model", class = "btn-summary"))
                      ),
                      # Conditional panel for creating a new dictionary
                      conditionalPanel(
@@ -604,7 +622,7 @@ ui <- fluidPage(
                        uiOutput("customDictionaryUI2"),
 
                        # Button to trigger dictionary creation and display
-                       actionButton("create_dict2", "Create/Display Dictionary", style = "margin-top: 20px;"),
+                       actionButton("create_dict2", "Create/Display Dictionary", class = "btn-summary", style = "margin-top: 20px;"),
 
                        # Output area for displaying the dictionary
                        br(),
@@ -614,7 +632,7 @@ ui <- fluidPage(
                          column(3)),
                        br(),
                        fluidRow(column(12, align = "center",
-                                       actionButton("seededlda_button_file_custom2", "Run Seeded LDA Model")))
+                                       actionButton("seededlda_button_file_custom2", "Run Seeded LDA Model", class = "btn-summary")))
                      )
 
                   ),
