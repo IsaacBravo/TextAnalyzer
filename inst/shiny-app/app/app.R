@@ -82,7 +82,7 @@ ui <- fluidPage(
     column(1,  style = "width: 5px;"),
     column(11,
            br(),
-           h3("TextAnalyzer Shiny App", icon("file-text"),
+           h3("TextAnalizer Shiny App", icon("file-text"),
               class = "data-main-title"),
            hr(),
            p("This Shiny App is designed to help you import, process, and analyze text data from your file or text efficiently. ", "It provides a user-friendly interface to perform various tasks related to text analysis, guided search, and more."),
@@ -98,7 +98,7 @@ ui <- fluidPage(
            h3("Features:"),
            hr(),
            p("This app focuses on making life easier for researchers looking to explore insights in their text analysis. Equipped to perform descriptive analysis, sentiment, emotion, topic modelling (LDA and seededLDA), it provides an excellent starting point for researchers and the general public with minimal or some programming experience."),
-           p(HTML("Explore the key features of the <b>TextAnalyzer App</b>:"),
+           p(HTML("Explore the key features of the <b>TextAnalizer App</b>:"),
              tags$ul(
                id = "wellPanelId2",
                class = "custom-well-panel-home1",
@@ -116,7 +116,9 @@ ui <- fluidPage(
            hr()
     )),
 
-
+  theme = bslib::bs_theme(
+    bg = "#191919", fg = "#8eccad", primary = "#268053",
+  ),
 
   tags$head(
     tags$script(src = "https://platform.twitter.com/widgets.js", charset = "utf-8"),
@@ -150,7 +152,7 @@ ui <- fluidPage(
       .inline-columns {
         display: inline-block;
       }
-            .btn-summary {
+      .btn-summary {
         color: #000;
         background-color: #00bc8c;
         border-radius: 20px;
@@ -168,11 +170,31 @@ ui <- fluidPage(
         background-color: #995e0d;
         color: #000;
       }
+      .btn-file {
+        color: #000;
+        background-color: #00bc8c;
+      }
+      .btn-file:hover {
+        background-color: #025839; /* Green */
+        color: white;
+      }
+      .progress-bar {
+        background-color: #f0ad4e;
+      }
+      textArea {
+       background-color: #dcdcdc !important;
+       border: 5px solid #808080 !important;
+       color: #000 !important;
+      }
+      #expr-container .form-control {
+        background-color: #dcdcdc;
+        border: 5px solid #808080;
+        border-radius: 15px;
+        color: #000;
+      }
     '))),
 
-  theme = bslib::bs_theme(
-    bg = "#191919", fg = "#8eccad", primary = "#268053",
-  ),
+
 
   sidebarLayout(
     sidebarPanel(
@@ -331,10 +353,10 @@ ui <- fluidPage(
                             actionButton("lda_test_button", "Check Number of Topics", class = "btn-summary")),
                      column(3, br(),
                             sliderInput("numTopics",
-                            p(HTML("<b>Select the number of topics that you want to check in your data:</b>")),
-                            min = 2,
-                            max = 10,
-                            value = 3)
+                                        p(HTML("<b>Select the number of topics that you want to check in your data:</b>")),
+                                        min = 2,
+                                        max = 10,
+                                        value = 3)
                      ),
                      column(3, br(),
                             p(HTML("<b>Run LDA Topic Model:</b>")),
@@ -387,7 +409,7 @@ ui <- fluidPage(
                        uiOutput("customDictionaryUI"),
 
                        # Button to trigger dictionary creation and display
-                       actionButton("create_dict", "Create/Display Dictionary", class = "btn-summary", style = "margin-top: 20px;"),
+                       actionButton("create_dict", "Create/Display Dictionary", style = "margin-top: 20px;", class = "btn-summary"),
 
                        # Output area for displaying the dictionary
                        br(),
@@ -405,8 +427,8 @@ ui <- fluidPage(
                    br(),
                    uiOutput("ldaTable2")
 
-        )
-      )),
+          )
+        )),
 
 
 
@@ -441,9 +463,9 @@ ui <- fluidPage(
                      column(1),
                      column(2),
                      column(1),
-                     column(2, br(), textInput("select_column", "Select Column to Explore")),
+                     column(2, br(), tags$div(id = "expr-container", textInput("select_column", "Select Column to Explore"))),
                      column(1),
-                     column(2, br(), textInput("select_column2", "Select Column to Explore"))
+                     column(2, br(), tags$div(id = "expr-container", textInput("select_column2", "Select Column to Explore")))
                    ),
                    hr(),
                    uiOutput("summary_file_table"),
@@ -463,7 +485,7 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("bing_button_file", "Bing"), class = "btn-summary"),
+                     column(1, actionButton("bing_button_file", "Bing", class = "btn-summary")),
                      column(1),
                      column(1, actionButton("nrc_button_file", "NRC", class = "btn-summary")),
                      column(1),
@@ -474,13 +496,13 @@ ui <- fluidPage(
                    ),
                    fluidRow(
                      column(2),
-                     column(1, br(), textInput("select_column3", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column3", ""))),
                      column(1),
-                     column(1, br(), textInput("select_column4", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column4", ""))),
                      column(1),
-                     column(2, br(), textInput("select_column5", "")),
+                     column(2, br(), tags$div(id = "expr-container", textInput("select_column5", ""))),
                      column(1),
-                     column(1, br(), textInput("select_column6", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column6", ""))),
                      column(2)
                    ),
                    br(),
@@ -508,9 +530,9 @@ ui <- fluidPage(
                    ),
                    fluidRow(
                      column(3),
-                     column(1, br(), textInput("select_column7", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column7", ""))),
                      column(3),
-                     column(2, br(), textInput("select_column8", "")),
+                     column(2, br(), tags$div(id = "expr-container", textInput("select_column8", ""))),
                      column(3)
                    ),
                    br(),
@@ -538,11 +560,11 @@ ui <- fluidPage(
                    ),
                    fluidRow(
                      column(2),
-                     column(1, br(), textInput("select_column9", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column9", ""))),
                      column(2),
-                     column(1, br(), textInput("select_column10", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column10", ""))),
                      column(2),
-                     column(1, br(), textInput("select_column11", "")),
+                     column(1, br(), tags$div(id = "expr-container", textInput("select_column11", ""))),
                      column(2)
                    ),
                    br(),
@@ -554,7 +576,7 @@ ui <- fluidPage(
           tabPanel("Topic Modelling (LDA):",
                    align = "center",
                    fluidRow(
-                     column(3, br(), textInput("select_column12", p(HTML("<b>Select the column text</b>")))),
+                     column(3, br(), tags$div(id = "expr-container", textInput("select_column12", p(HTML("<b>Select the column text</b>"))))),
                      column(2, br(),
                             p(HTML("<b>Check the best number of topics for your data:</b>")),
                             br(),
@@ -596,7 +618,7 @@ ui <- fluidPage(
                    align = "center",
                    br(),
                    h5(HTML("<b>Select the column text:</b>")),
-                   textInput("select_column13", ""),
+                   tags$div(id = "expr-container", textInput("select_column13", "")),
                    br(),
                    h5(HTML("<b>Select Dictionary Type:</b>")),
                    br(),
@@ -622,7 +644,7 @@ ui <- fluidPage(
                        uiOutput("customDictionaryUI2"),
 
                        # Button to trigger dictionary creation and display
-                       actionButton("create_dict2", "Create/Display Dictionary", class = "btn-summary", style = "margin-top: 20px;"),
+                       actionButton("create_dict2", "Create/Display Dictionary", style = "margin-top: 20px;", class = "btn-summary"),
 
                        # Output area for displaying the dictionary
                        br(),
@@ -635,7 +657,7 @@ ui <- fluidPage(
                                        actionButton("seededlda_button_file_custom2", "Run Seeded LDA Model", class = "btn-summary")))
                      )
 
-                  ),
+                   ),
                    br(),
                    uiOutput("ldaTable3"),
                    br(),
@@ -644,8 +666,8 @@ ui <- fluidPage(
 
 
 
-          ))
-      )
+        ))
+    )
   )
 )
 
