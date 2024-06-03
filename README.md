@@ -1,6 +1,9 @@
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/TextAnalyzer)](https://CRAN.R-project.org/package=TextAnalyzer)
+
 # Text Analysis Shiny App Package
 
 The Text Analyzer Shiny App is an interactive tool for analyzing and visualizing text data. It allows users to perform various text analysis tasks, including sentiment analysis, word frequency analysis, and topic modelling. This README provides an overview of the app's features, how to use it, and how to get started.
