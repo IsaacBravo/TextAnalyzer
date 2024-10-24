@@ -760,7 +760,21 @@ server <- function(input, output, session) {
         hr()
       )
     })
+
+    # Make the data reactive so it can be accessed globally
+    summary_data <<- data
+
   })
+
+  # Summary Download Handler
+  output$download_summary <- downloadHandler(
+    filename = function() {
+      paste("summary_results_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(summary_data, file)
+    }
+  )
 
   observeEvent(input$word_freq_button, {
     req(input$input_text)  # Ensure input is available
@@ -833,7 +847,22 @@ server <- function(input, output, session) {
 
     })
 
+    # Make the data reactive so it can be accessed globally
+    annotation_data <<- list(ANNOTATION = annotation_df,
+                             FREQUENCY = all_word_freq_df)
+
   })
+
+  # Summary Download Handler
+  output$download_annotation <- downloadHandler(
+    filename = function() {
+      paste("annotation_results_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(annotation_data, file)
+    }
+  )
+
 
   observeEvent(input$word_plot_button, {
     req(input$input_text)  # Ensure input is available
@@ -930,7 +959,7 @@ server <- function(input, output, session) {
         )
     })
 
-
+    plt_all_word_freq_clean_data <<- all_word_freq_df_clean
 
 
 
@@ -978,14 +1007,14 @@ server <- function(input, output, session) {
     })
 
 
-
-
     output$both_plots <- renderUI({
 
       fluidRow(
         column(4,
                div(
                  h5("Word Distribution:"),
+                 hr(),
+                 downloadButton("download_word_plot", "Download Word Distribution Plot"),
                  hr(),
                  highchartOutput("plot_freq_table")
                )
@@ -994,6 +1023,8 @@ server <- function(input, output, session) {
                div(
                  h5("Word Distribution (Clean Text):"),
                  hr(),
+                 downloadButton("download_word_plot_clean", "Download Word Distribution Plot (clean)"),
+                 hr(),
                  highchartOutput("plot_freq_table_clean")
                )
         ),
@@ -1001,13 +1032,65 @@ server <- function(input, output, session) {
                div(
                  h5("Entities Distribution:"),
                  hr(),
+                 downloadButton("download_word_plot_entities", "Download Entity Distribution Plot"),
+                 hr(),
                  highchartOutput("plot_entities")
                )
         )
       )
     })
 
+    plt_annotation_data <<- annotation_df
+
   })
+
+  # Download handler for Word Distribution Plot
+  output$download_word_plot <- downloadHandler(
+    filename = function() {
+      paste("word_distribution_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = ggplot(plt_all_word_freq_data, aes(x = Word, y = Frequency)) +
+               geom_col(fill = "#b1ddc7", color = "#8eccad") +
+               theme_minimal() +
+               labs(title = "Word Distribution", x = "Word", y = "Frequency") +
+               theme(axis.title.x = element_text(color = "#8eccad"),
+                     axis.title.y = element_text(color = "#8eccad")),
+             device = "png")
+    }
+  )
+
+  # Download handler for Word (Clean) Distribution Plot
+  output$download_word_plot_clean <- downloadHandler(
+    filename = function() {
+      paste("word_distribution_clean_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = ggplot(plt_all_word_freq_clean_data, aes(x = Word, y = Frequency)) +
+               geom_col(fill = "#b1ddc7", color = "#8eccad") +
+               theme_minimal() +
+               labs(title = "Word Distribution", x = "Word", y = "Frequency") +
+               theme(axis.title.x = element_text(color = "#8eccad"),
+                     axis.title.y = element_text(color = "#8eccad")),
+             device = "png")
+    }
+  )
+
+  # Download handler for Entity Distribution Plot
+  output$download_word_plot_entities <- downloadHandler(
+    filename = function() {
+      paste("word_distribution_entity_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = ggplot(annotation_plt_data, aes(x = Entity, y = Total)) +
+               geom_col(fill = "#b1ddc7", color = "#8eccad") +
+               theme_minimal() +
+               labs(title = "Word Distribution", x = "Entity", y = "Frequency") +
+               theme(axis.title.x = element_text(color = "#8eccad"),
+                     axis.title.y = element_text(color = "#8eccad")),
+             device = "png")
+    }
+  )
 
   ####### ----------- TAB 2: SENTIMENT ANALYSIS ------------------------ #######
 
@@ -1724,29 +1807,29 @@ server <- function(input, output, session) {
     text <- data()
 
     # Split text into sentences
-    # sentences <- str_split(text, pattern = "\\?|\\.|!", simplify = FALSE) |> 
-    #   unlist() |> 
+    # sentences <- str_split(text, pattern = "\\?|\\.|!", simplify = FALSE) |>
+    #   unlist() |>
     #   gsub("[[:punct:]]", "", .) %>%
     #   trimws() #%>%
     #   .[. != ""]
 
         # Split the text into sentences using str_split
     sentences <- str_split(text, pattern = "\\?|\\.|!", simplify = FALSE)
-    
+
     # Unlist the result
     sentences <- unlist(sentences)
-    
+
     # Remove punctuation
     sentences <- gsub("[[:punct:]]", "", sentences)
-    
+
     # Trim whitespace
     sentences <- trimws(sentences)
-    
+
     # Remove empty strings
     sentences <- sentences[sentences != ""]
 
 
-    
+
     # Prepare for LDA
     corpus <- corpus(sentences)
     toks <- tokens(corpus, remove_punct = TRUE, remove_symbols = TRUE,
@@ -2269,6 +2352,9 @@ server <- function(input, output, session) {
 
 
 #------------------------------- TEXT INPUT -----------------------------------#
+
+
+#------------------------------- FILE INPUT -----------------------------------#
 
   ####### ----------- TAB 1: SUMMARY OF THE DATA ----------------------- #######
 
