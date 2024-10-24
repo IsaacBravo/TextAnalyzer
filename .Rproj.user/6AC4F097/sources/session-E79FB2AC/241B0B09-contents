@@ -1724,29 +1724,12 @@ server <- function(input, output, session) {
     text <- data()
 
     # Split text into sentences
-    # sentences <- str_split(text, pattern = "\\?|\\.|!", simplify = FALSE) |> 
-    #   unlist() |> 
-    #   gsub("[[:punct:]]", "", .) %>%
-    #   trimws() #%>%
-    #   .[. != ""]
+    sentences <- str_split(text, pattern = "\\?|\\.|!", simplify = FALSE) %>%
+      unlist() %>%
+      gsub("[[:punct:]]", "", .) %>%
+      trimws() %>%
+      .[. != ""]
 
-        # Split the text into sentences using str_split
-    sentences <- str_split(text, pattern = "\\?|\\.|!", simplify = FALSE)
-    
-    # Unlist the result
-    sentences <- unlist(sentences)
-    
-    # Remove punctuation
-    sentences <- gsub("[[:punct:]]", "", sentences)
-    
-    # Trim whitespace
-    sentences <- trimws(sentences)
-    
-    # Remove empty strings
-    sentences <- sentences[sentences != ""]
-
-
-    
     # Prepare for LDA
     corpus <- corpus(sentences)
     toks <- tokens(corpus, remove_punct = TRUE, remove_symbols = TRUE,
