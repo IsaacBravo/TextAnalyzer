@@ -916,6 +916,8 @@ server <- function(input, output, session) {
         )
     })
 
+    plt_all_word_freq_data <<- all_word_freq_df
+
     corpus_clean <- tm_map(corpus,  removeWords, stopwords("english"))
     dtm_clean <- DocumentTermMatrix(corpus_clean)
     freq_matrix_clean <- as.matrix(dtm_clean)
@@ -1082,7 +1084,7 @@ server <- function(input, output, session) {
       paste("word_distribution_entity_plot_", Sys.Date(), ".png", sep = "")
     },
     content = function(file) {
-      ggsave(file, plot = ggplot(annotation_plt_data, aes(x = Entity, y = Total)) +
+      ggsave(file, plot = ggplot(plt_annotation_data, aes(x = Entity, y = Total)) +
                geom_col(fill = "#b1ddc7", color = "#8eccad") +
                theme_minimal() +
                labs(title = "Word Distribution", x = "Entity", y = "Frequency") +
