@@ -319,10 +319,14 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(3),
-                     column(1, actionButton("nrc_emotion_button", "NRC", class = "btn-summary")),
+                     column(2, actionButton("nrc_emotion_button", "NRC", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_emotion_nrc", "Download Results as Excel")),
                      column(3),
-                     column(2, actionButton("loughran_emotion_button", "Loughran-McDonald", class = "btn-summary")),
-                     column(3)
+                     column(2, actionButton("loughran_emotion_button", "Loughran-McDonald", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_emotion_loughran", "Download Results as Excel")),
+                     column(1)
                    ),
                    br(),
                    hr(),
@@ -1521,7 +1525,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(paragraph, word = token_lower, emotion) |> filter(!is.na(emotion))
+
+    tokens_tab_emo_nrc <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_emotion_nrc <- downloadHandler(
+    filename = function() {
+      paste("results_emotion_nrc_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_emo_nrc, file)
+    }
+  )
 
   observeEvent(input$loughran_emotion_button, {
 
@@ -1609,7 +1627,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(paragraph, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_emo_loughran <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_emotion_loughran <- downloadHandler(
+    filename = function() {
+      paste("results_emotion_loughran_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_emo_loughran, file)
+    }
+  )
 
 
   ####### ----------- TAB 4: AROUSAL & VALENCE ------------------------- #######
