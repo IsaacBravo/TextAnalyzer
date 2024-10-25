@@ -373,7 +373,9 @@ ui <- fluidPage(
                             p(HTML("<b>Check the best number of topics for your data:</b>")),
                             br(),
                             align = "center",
-                            actionButton("lda_test_button", "Check Number of Topics", class = "btn-summary")),
+                            actionButton("lda_test_button", "Check Number of Topics", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_lda_test", "Download Results")),
                      column(3, br(),
                             sliderInput("numTopics",
                                         p(HTML("<b>Select the number of topics that you want to check in your data:</b>")),
@@ -385,12 +387,16 @@ ui <- fluidPage(
                             p(HTML("<b>Run LDA Topic Model:</b>")),
                             align = "center",
                             br(),
-                            actionButton("lda_button", "Run LDA Model", class = "btn-summary")),
+                            actionButton("lda_button", "Run LDA Model", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_lda_results", "Download Results")),
                      column(3, br(),
                             p(HTML("<b>Check Topic Evaluation:</b>")),
                             align = "center",
                             br(),
-                            actionButton("lda_evaluation_button", "Run Evaluation Model", class = "btn-summary")),
+                            actionButton("lda_evaluation_button", "Run Evaluation Model", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_lda_eval", "Download Results"))
                    ),
                    br(),
                    uiOutput("test_k_plot"),
@@ -2073,20 +2079,42 @@ server <- function(input, output, session) {
                 legend.text = element_text(face = "bold", size = 17))
       })
 
+      plt_lda_1 <- ap_top_terms %>%
+        mutate(term = reorder_within(term, beta, topic)) %>%
+        ggplot(aes(beta, term, fill = factor(topic))) +
+        geom_col(show.legend = FALSE) +
+        facet_wrap(~ topic, scales = "free") +
+        scale_y_reordered() +
+        theme(axis.text = element_text(size = 16),
+              axis.text.y = element_text(face = "bold"),
+              strip.text = element_text(size = 18, face = "bold"))
 
-    output$topics <- renderUI({
+      output$topics <- renderUI({
 
-      fluidRow(
-        column(1),
-        column(10,
-               div(
-                 h5("The terms that are most common within each topic:"),
-                 hr(),
-                 plotOutput("lda_plot") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
-               )),
-        column(1)
+        fluidRow(
+          column(1),
+          column(10,
+                 div(
+                   h5("The terms that are most common within each topic:"),
+                   br(),
+                   downloadButton("download_lda_plt1", "Download Plot"),
+                   hr(),
+                   plotOutput("lda_plot") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
+                 )),
+          column(1)
+        )
+      })
+
+      # Summary Download Handler
+      output$download_lda_plt1 <- downloadHandler(
+        filename = function() {
+          paste("results_LDA_plt1_", Sys.Date(), ".png", sep = "")
+        },
+        content = function(file) {
+          ggsave(file, plot = plt_lda_1,
+                 device = "png")
+        }
       )
-    })
 
     output$topics_pie <- renderUI({
 
@@ -2118,8 +2146,21 @@ server <- function(input, output, session) {
       )
     })
 
+    results_lda <<- list(TOP_TERMS = ap_top_terms, SUMMARY = df_predominant_topic, DISTRIBUTION = topic_docs)
+
 
   })
+
+
+  # Summary Download Handler
+  output$download_lda_results <- downloadHandler(
+    filename = function() {
+      paste("results_LDA_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(results_lda, file)
+    }
+  )
 
   observeEvent(input$lda_test_button, {
 
@@ -2193,7 +2234,36 @@ server <- function(input, output, session) {
       )
     })
 
+    p_lda_test <<- ggplot(values, aes_string(x = "topics", y = "value", group = "variable"),
+                          height = 500) +
+      geom_line() +
+      geom_point(aes_string(shape = "variable"), size = 3, color = "white") +
+      guides(size = FALSE, shape = guide_legend(title = "Metrics:")) +
+      scale_x_continuous(breaks = values$topics) +
+      labs(x = "Number of Topics", y = NULL) +
+      facet_grid(group ~ .) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+            axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            axis.title.y = element_text(face = "bold", size = 18),
+            axis.title.x = element_text(face = "bold", size = 18),
+            strip.text = element_text(size = 18, face = "bold"),
+            legend.key.size = unit(1., 'cm'),
+            legend.title = element_text(face = "bold", size = 17),
+            legend.text = element_text(face = "bold", size = 17))
+
   })
+
+  # Download handler for Word Distribution Plot
+  output$download_lda_test <- downloadHandler(
+    filename = function() {
+      paste("LDA_test_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = p_lda_test,
+             device = "png")
+    }
+  )
 
   observeEvent(input$lda_evaluation_button, {
 
@@ -2261,7 +2331,36 @@ server <- function(input, output, session) {
       )
     })
 
+    p_lda_evaluation <<- diag_df %>%
+      gather(diagnostic, value, -topic_label, -topic_num) %>%
+      ggplot(aes(x = topic_num, y = value,
+                 fill = str_wrap(topic_label, 25))) +
+      geom_bar(stat = "identity") +
+      facet_wrap(~diagnostic, scales = "free", ncol = 2) +
+      labs(x = "Topic Number", y = "Diagnostic Value",
+           fill = "Topic Label", title = "") +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+            axis.text = element_text(size = 12),
+            axis.text.y = element_text(face = "bold"),
+            axis.title.y = element_text(face = "bold", size = 12),
+            axis.title.x = element_text(face = "bold", size = 12),
+            strip.text = element_text(size = 12, face = "bold"),
+            legend.position = "bottom",
+            legend.key.size = unit(.5, 'cm'),
+            legend.title = element_text(face = "bold", size = 12),
+            legend.text = element_text(face = "bold", size = 12))
   })
+
+  # Download handler for Word Distribution Plot
+  output$download_lda_eval <- downloadHandler(
+    filename = function() {
+      paste("LDA_evaluation_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = p_lda_evaluation,
+             device = "png")
+    }
+  )
 
   ####### ----------- TAB 6: SEEDED LDA -------------------------------- #######
 
