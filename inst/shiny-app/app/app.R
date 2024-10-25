@@ -344,12 +344,18 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("arousal_button", "Arousal Level", class = "btn-summary")),
-                     column(2),
-                     column(1, actionButton("valence_button", "Valence Level", class = "btn-summary")),
-                     column(2),
-                     column(1, actionButton("dominance_button", "Dominance Level", class = "btn-summary")),
-                     column(2)
+                     column(2, actionButton("arousal_button", "Arousal Level", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_arousal", "Download Results as Excel")),
+                     column(1),
+                     column(2, actionButton("valence_button", "Valence Level", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_valence", "Download Results as Excel")),
+                     column(1),
+                     column(2, actionButton("dominance_button", "Dominance Level", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_dominance", "Download Results as Excel")),
+                     column(1)
                    ),
                    br(),
                    hr(),
@@ -1730,7 +1736,19 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_tab_arousal <<- list(SUMMARY = tokens_tab, DETAILS = df_arousal)
+
   })
+
+  # Summary Download Handler
+  output$download_arousal <- downloadHandler(
+    filename = function() {
+      paste("results_arousal_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_arousal, file)
+    }
+  )
 
   observeEvent(input$valence_button, {
 
@@ -1815,7 +1833,19 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_tab_valence <<- list(SUMMARY = tokens_tab, DETAILS = df_valence)
+
   })
+
+  # Summary Download Handler
+  output$download_valence <- downloadHandler(
+    filename = function() {
+      paste("results_valence_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_valence, file)
+    }
+  )
 
   observeEvent(input$dominance_button, {
 
@@ -1900,7 +1930,19 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_tab_dominance <<- list(SUMMARY = tokens_tab, DETAILS = df_dominance)
+
   })
+
+  # Summary Download Handler
+  output$download_dominance <- downloadHandler(
+    filename = function() {
+      paste("results_dominance_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_dominance, file)
+    }
+  )
 
 
   ####### ----------- TAB 5: TOPIC MODELLING LDA ----------------------- #######
