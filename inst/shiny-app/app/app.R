@@ -270,13 +270,21 @@ ui <- fluidPage(
                    br(),
                    fluidRow(
                      column(2),
-                     column(1, actionButton("bing_button", "Bing", class = "btn-summary")),
+                     column(1, actionButton("bing_button", "Bing", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_bing", "Download Results as Excel")),
                      column(1),
-                     column(1, actionButton("nrc_button", "NRC", class = "btn-summary")),
+                     column(1, actionButton("nrc_button", "NRC", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_nrc", "Download Results as Excel")),
                      column(1),
-                     column(2, actionButton("loughran_button", "Loughran-McDonald", class = "btn-summary")),
+                     column(2, actionButton("loughran_button", "Loughran-McDonald", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_loughran", "Download Results as Excel")),
                      column(1),
-                     column(1, actionButton("afinn_button", "AFINN", class = "btn-summary")),
+                     column(1, actionButton("afinn_button", "AFINN", class = "btn-summary"),
+                            hr(),
+                            downloadButton("download_afinn", "Download Results as Excel")),
                      column(2)
                    ),
                    br(),
@@ -294,6 +302,7 @@ ui <- fluidPage(
                    ),
                    hr(),
                    uiOutput("sentiment_text"),
+                   hr(),
                    uiOutput("bing_plots"),
                    uiOutput("nrc_plots"),
                    uiOutput("loughran_plots"),
@@ -1154,7 +1163,25 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(paragraph, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_bing <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_bing <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_bing_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_bing, file)
+    }
+  )
+
+
+
+
 
   observeEvent(input$nrc_button, {
 
@@ -1212,7 +1239,22 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(paragraph, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_nrc <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_nrc <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_nrc_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_nrc, file)
+    }
+  )
+
 
   observeEvent(input$loughran_button, {
 
@@ -1271,7 +1313,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(paragraph, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_loughran <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_loughran <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_loughran_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_loughran, file)
+    }
+  )
 
   observeEvent(input$afinn_button, {
 
@@ -1329,7 +1385,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(paragraph, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_afinn <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_afinn <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_affin_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_afinn, file)
+    }
+  )
 
   # Render the highlighted text
   output$highlighted_text <- renderUI({
