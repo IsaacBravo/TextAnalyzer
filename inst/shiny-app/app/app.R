@@ -432,24 +432,36 @@ ui <- fluidPage(
                      ),
 
                      # Conditional panel for creating a new dictionary
+                     # Conditional panel for creating a new dictionary
                      conditionalPanel(
                        condition = "input.dict_type === 'create_dictionary'",
                        # UI for creating a new dictionary
-                       uiOutput("customDictionaryUI"),
-
-                       # Button to trigger dictionary creation and display
-                       actionButton("create_dict", "Create/Display Dictionary", style = "margin-top: 20px;", class = "btn-summary"),
-
-                       # Output area for displaying the dictionary
-                       br(),
                        fluidRow(
-                         column(3),
-                         column(6, align = "center", br(), verbatimTextOutput("display_dict")),
-                         column(3)),
-                       br(),
-                       fluidRow(column(12, align = "center",
-                                       actionButton("seededlda_button_file_custom", "Run Seeded LDA Model", class = "btn-summary")))
-                     )
+                         br(),
+                         fluidRow(
+                           column(2),
+                           column(3, align = "center", textInput("category_name", "Enter Category Name:")),
+                           column(2),
+                           column(3, textAreaInput("related_words", "Add Related Words (comma-separated):", height = '100px')),
+                           column(2)
+                         ),
+                         br(),
+                         fluidRow(
+                           column(4),
+                           column(5, align = "center",
+                                  br(),
+                                  actionButton("create_dict", "Create/Display Dictionary", style = "margin-top: 20px;", class = "btn-summary"),
+                                  hr(),
+                                  verbatimTextOutput("display_dict"),
+                                  hr()),
+                           column(3)),
+                         br(),
+                         fluidRow(
+                           column(4),
+                           column(5, align = "center", actionButton("seededlda_button_file_custom", "Run Seeded LDA Model", class = "btn-summary")),
+                           column(3)
+                         )
+                       ))
                    ),
                    br(),
                    uiOutput("ldaTable"),
@@ -2418,14 +2430,14 @@ server <- function(input, output, session) {
   }, ignoreNULL = FALSE)
 
   # Add UI elements conditionally
-  output$customDictionaryUI <- renderUI({
-    if (input$dict_type == "create_dictionary") {
-      fluidRow(
-        column(6, textInput("category_name", "Enter Category Name:")),
-        column(6, textAreaInput("related_words", "Add Related Words (comma-separated):", height = '100px'))
-      )
-    }
-  })
+  # output$customDictionaryUI <- renderUI({
+  #   if (input$dict_type == "create_dictionary") {
+  #     fluidRow(
+  #       column(6, textInput("category_name", "Enter Category Name:")),
+  #       column(6, textAreaInput("related_words", "Add Related Words (comma-separated):", height = '100px'))
+  #     )
+  #   }
+  # })
 
   # Listen for changes in the input 'dict_type'
   observeEvent(input$seededlda_button_file_default, {
@@ -2472,6 +2484,17 @@ server <- function(input, output, session) {
       mutate(percent = round((total/sum(total)), 3),
              label = paste0("Topic ", topic2, ": ", percent*100, "%"))
 
+    seedlda_results_custom <<- list(SUMMARY = dominant_topic, DETAILS = as.data.frame(terms(lda_seed2, n = 20)))
+
+    plt_seedlda_2 <- ggplot(dominant_topic, aes(x = "", y = percent, fill = label)) +
+      geom_bar(stat = "identity") +
+      coord_polar(theta = "y") +
+      labs(title = "Topic Distribution") +
+      theme_void() +
+      theme(axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            strip.text = element_text(size = 18, face = "bold"))
+
     output$seededlda_plot_pie <- renderHighchart({
 
       hchart(dominant_topic,
@@ -2481,6 +2504,18 @@ server <- function(input, output, session) {
     })
 
 
+    seedlda_results <<- list(SUMMARY = dominant_topic, DETAILS = as.data.frame(terms(lda_seed, n = 20)))
+
+    plt_seedlda_1 <- ggplot(dominant_topic, aes(x = "", y = percent, fill = label)) +
+      geom_bar(stat = "identity") +
+      coord_polar(theta = "y") +
+      labs(title = "Topic Distribution") +
+      theme_void() +
+      theme(axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            strip.text = element_text(size = 18, face = "bold"))
+
+
     # Render LDA Results Table
     output$ldaTable <- renderUI({
       fluidRow(
@@ -2488,8 +2523,11 @@ server <- function(input, output, session) {
         h5(HTML("<b>Results by Default Dictionary:</b>")),
         column(6,
                div(
+                 br(),
                  h5("SeededLDA Results:"),
                  br(),
+                 downloadButton("download_seed_table", "Download Results"),
+                 hr(),
                  reactableOutput("ldaResults") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(6,
@@ -2497,10 +2535,33 @@ server <- function(input, output, session) {
                  br(),
                  h5("Distribution across Topics in Text:"),
                  br(),
+                 downloadButton("download_seed_plt1", "Download Plot"),
+                 hr(),
                  highchartOutput("seededlda_plot_pie") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                ))
       )
     })
+
+    # Summary Download Handler
+    output$download_seed_table <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(seedlda_results, file)
+      }
+    )
+
+    # Summary Download Handler
+    output$download_seed_plt1 <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_plt1_", Sys.Date(), ".png", sep = "")
+      },
+      content = function(file) {
+        ggsave(file, plot = plt_seedlda_1,
+               device = "png")
+      }
+    )
 
 
   })
@@ -2551,6 +2612,17 @@ server <- function(input, output, session) {
       mutate(percent = round((total/sum(total)), 3),
              label = paste0("Topic ", topic2, ": ", percent*100, "%"))
 
+    seedlda_results_custom <<- list(SUMMARY = dominant_topic, DETAILS = as.data.frame(terms(lda_seed2, n = 20)))
+
+    plt_seedlda_2 <- ggplot(dominant_topic, aes(x = "", y = percent, fill = label)) +
+      geom_bar(stat = "identity") +
+      coord_polar(theta = "y") +
+      labs(title = "Topic Distribution") +
+      theme_void() +
+      theme(axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            strip.text = element_text(size = 18, face = "bold"))
+
     output$seededlda_plot_pie2 <- renderHighchart({
 
       hchart(dominant_topic,
@@ -2571,6 +2643,8 @@ server <- function(input, output, session) {
                  br(),
                  h5("SeededLDA Results:"),
                  br(),
+                 downloadButton("download_seed_table_custom", "Download Results"),
+                 hr(),
                  reactableOutput("ldaResults2") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(6,
@@ -2578,10 +2652,34 @@ server <- function(input, output, session) {
                  br(),
                  h5("Distribution across Topics in Text:"),
                  br(),
+                 downloadButton("download_seed_plt2", "Download Plot"),
+                 hr(),
                  highchartOutput("seededlda_plot_pie2") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                ))
       )
     })
+
+    # Summary Download Handler
+    output$download_seed_table_custom <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(seedlda_results_custom, file)
+      }
+    )
+
+    # Summary Download Handler
+    output$download_seed_plt2 <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_plt2_", Sys.Date(), ".png", sep = "")
+      },
+      content = function(file) {
+        ggsave(file, plot = plt_seedlda_2,
+               device = "png")
+      }
+    )
+
   })
 
 
