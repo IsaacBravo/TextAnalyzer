@@ -2693,11 +2693,9 @@ server <- function(input, output, session) {
 
 
 
-
-#------------------------------- TEXT INPUT -----------------------------------#
-
-
 #------------------------------- FILE INPUT -----------------------------------#
+
+
 
   ####### ----------- TAB 1: SUMMARY OF THE DATA ----------------------- #######
 
@@ -2797,6 +2795,9 @@ server <- function(input, output, session) {
       )
     })
 
+    # Make the data reactive so it can be accessed globally
+    summary_data_file <<- data
+
     output$summary_file_table <- renderUI({
       fluidRow(
         column(3),
@@ -2804,14 +2805,28 @@ server <- function(input, output, session) {
                div(
                  h5("Summary File:") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5),
                  hr(),
+                 downloadButton("download_summary_file", "Download Summary as Excel"),
+                 hr(),
                  reactableOutput("file_summary"),
                  br()
-               )),
+               )
+        ),
         column(3),
         br(),
         hr()
       )
     })
+
+    # Summary Download Handler
+    output$download_summary_file <- downloadHandler(
+      filename = function() {
+        paste("summary_results_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(summary_data_file, file)
+      }
+    )
+
   })
 
   observeEvent(input$word_freq_file_button, {
@@ -2878,6 +2893,8 @@ server <- function(input, output, session) {
                div(
                  h5("Word Frequency Across Data:"),
                  hr(),
+                 downloadButton("download_annotation_file", "Download Results as Excel"),
+                 hr(),
                  reactableOutput("word_freq_table") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5),
                  hr()
                )
@@ -2885,6 +2902,8 @@ server <- function(input, output, session) {
         column(6,
                div(
                  h5("Table Entities Across Data:"),
+                 hr(),
+                 downloadButton("download_annotation_file", "Download Results as Excel"),
                  hr(),
                  reactableOutput("table_entities") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5),
                  hr()
@@ -2894,7 +2913,21 @@ server <- function(input, output, session) {
 
     })
 
+    # Make the data reactive so it can be accessed globally
+    annotation_data_file <<- list(ANNOTATION = annotation_df,
+                                  FREQUENCY = all_word_freq_df)
+
   })
+
+  # Summary Download Handler
+  output$download_annotation_file <- downloadHandler(
+    filename = function() {
+      paste("annotation_results_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(annotation_data_file, file)
+    }
+  )
 
   observeEvent(input$word_plot_file_button, {
     # Ensure a column is selected
@@ -2928,6 +2961,8 @@ server <- function(input, output, session) {
       select(Word, Frequency) |>
       arrange(desc(Frequency)) |>
       head(5)
+
+    plt_all_word_freq_data_file <<- all_word_freq_df
 
     output$plot_freq_table <- renderHighchart({
       hchart(all_word_freq_df, "column",
@@ -3001,9 +3036,7 @@ server <- function(input, output, session) {
         )
     })
 
-
-
-
+    plt_all_word_freq_clean_data_file <<- all_word_freq_df_clean
 
     annotation <- cnlp_annotate(input = input_text)
 
@@ -3048,9 +3081,6 @@ server <- function(input, output, session) {
         )
     })
 
-
-
-
     output$both_plots_data <- renderUI({
 
       fluidRow(
@@ -3058,27 +3088,84 @@ server <- function(input, output, session) {
                div(
                  h5("Word Distribution:"),
                  hr(),
-                 highchartOutput("plot_freq_table") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
+                 downloadButton("download_word_plot_file", "Download Word Distribution Plot"),
+                 hr(),
+                 highchartOutput("plot_freq_table")
                )
         ),
         column(4,
                div(
                  h5("Word Distribution (Clean Text):"),
                  hr(),
-                 highchartOutput("plot_freq_table_clean") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
+                 downloadButton("download_word_plot_clean_file", "Download Word Distribution Plot (clean)"),
+                 hr(),
+                 highchartOutput("plot_freq_table_clean")
                )
         ),
         column(4,
                div(
                  h5("Entities Distribution:"),
                  hr(),
-                 highchartOutput("plot_entities") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
+                 downloadButton("download_word_plot_entities_file", "Download Entity Distribution Plot"),
+                 hr(),
+                 highchartOutput("plot_entities")
                )
         )
       )
     })
 
+    plt_annotation_data_file <<- annotation_df
+
   })
+
+
+  # Download handler for Word Distribution Plot
+  output$download_word_plot_file <- downloadHandler(
+    filename = function() {
+      paste("word_distribution_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = ggplot(plt_all_word_freq_data_file, aes(x = Word, y = Frequency)) +
+               geom_col(fill = "#b1ddc7", color = "#8eccad") +
+               theme_minimal() +
+               labs(title = "Word Distribution", x = "Word", y = "Frequency") +
+               theme(axis.title.x = element_text(color = "#8eccad"),
+                     axis.title.y = element_text(color = "#8eccad")),
+             device = "png")
+    }
+  )
+
+  # Download handler for Word Distribution Plot
+  output$download_word_plot_clean_file <- downloadHandler(
+    filename = function() {
+      paste("word_distribution_clean_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = ggplot(plt_all_word_freq_clean_data_file, aes(x = Word, y = Frequency)) +
+               geom_col(fill = "#b1ddc7", color = "#8eccad") +
+               theme_minimal() +
+               labs(title = "Word Distribution", x = "Word", y = "Frequency") +
+               theme(axis.title.x = element_text(color = "#8eccad"),
+                     axis.title.y = element_text(color = "#8eccad")),
+             device = "png")
+    }
+  )
+
+  # Download handler for Word Distribution Plot
+  output$download_word_plot_entities_file <- downloadHandler(
+    filename = function() {
+      paste("word_distribution_entity_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = ggplot(plt_annotation_data_file, aes(x = Entity, y = Total)) +
+               geom_col(fill = "#b1ddc7", color = "#8eccad") +
+               theme_minimal() +
+               labs(title = "Word Distribution", x = "Entity", y = "Frequency") +
+               theme(axis.title.x = element_text(color = "#8eccad"),
+                     axis.title.y = element_text(color = "#8eccad")),
+             device = "png")
+    }
+  )
 
   ####### ----------- TAB 2: SENTIMENT ANALYSIS ------------------------ #######
 
