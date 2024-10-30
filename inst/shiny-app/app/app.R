@@ -546,6 +546,17 @@ ui <- fluidPage(
                      column(1, br(), tags$div(id = "expr-container", textInput("select_column6", ""))),
                      column(2)
                    ),
+                   fluidRow(
+                     column(2),
+                     column(1, hr(), downloadButton("download_bing_file", "Download Results as Excel")),
+                     column(1),
+                     column(1, hr(), downloadButton("download_nrc_file", "Download Results as Excel")),
+                     column(1),
+                     column(2, hr(), downloadButton("download_loughran_file", "Download Results as Excel")),
+                     column(1),
+                     column(1, hr(), downloadButton("download_afinn_file", "Download Results as Excel")),
+                     column(2)
+                   ),
                    br(),
                    hr(),
                    uiOutput("bing_plots_file"),
