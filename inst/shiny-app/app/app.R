@@ -3755,6 +3755,9 @@ server <- function(input, output, session) {
       )
     })
 
+    tokens_results <- tokens |> select(docs, word = token_lower, emotion) |> filter(!is.na(emotion))
+
+    tokens_tab_emo_nrc_file <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
 
     output$nrc_emotion_plots_file <- renderUI({
 
@@ -3764,12 +3767,18 @@ server <- function(input, output, session) {
                div(
                  h5("NRC Emotions:"),
                  hr(),
+                 downloadButton("download_emotion_nrc_file", "Download Results as Excel"),
+                 hr(),
                  highchartOutput("n_emotion_plot_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(1),
         column(4,
                div(
                  h5("NRC Emotions - Table:"),
+                 br(),
+                 br(),
+                 br(),
+                 br(),
                  hr(),
                  reactableOutput("n_emotion_table_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
@@ -3780,7 +3789,17 @@ server <- function(input, output, session) {
 
   })
 
-  observeEvent(input$loughran_emotion_button, {
+  # Summary Download Handler
+  output$download_emotion_nrc_file <- downloadHandler(
+    filename = function() {
+      paste("results_emotion_nrc_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_emo_nrc_file, file)
+    }
+  )
+
+  observeEvent(input$loughran_emotion_button_file, {
 
     sentiments <- readRDS("./lexicons/LoughranMcDonald.rds") |>
       filter(!sentiment %in% c("positive", "negative"))
@@ -3858,7 +3877,6 @@ server <- function(input, output, session) {
       )
     })
 
-
     output$loughran_emotion_plots_file <- renderUI({
 
       fluidRow(
@@ -3867,12 +3885,18 @@ server <- function(input, output, session) {
                div(
                  h5("Loughran McDonald Emotions:"),
                  hr(),
+                 downloadButton("download_emotion_loughran_file", "Download Results as Excel"),
+                 hr(),
                  highchartOutput("loughran_emotion_plot_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(1),
         column(4,
                div(
                  h5("Loughran McDonald Emotions - Table:"),
+                 br(),
+                 br(),
+                 br(),
+                 br(),
                  hr(),
                  reactableOutput("loughran_emotion_table_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
@@ -3881,7 +3905,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results <- tokens |> select(docs, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_emo_loughran_file <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results)
+
   })
+
+  # Summary Download Handler
+  output$download_emotion_loughran_file <- downloadHandler(
+    filename = function() {
+      paste("results_emotion_loughran_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_emo_loughran_file, file)
+    }
+  )
 
   ####### ----------- TAB 4: AROUSAL & VALENCE ------------------------- #######
 
@@ -3959,6 +3997,7 @@ server <- function(input, output, session) {
       )
     })
 
+    tokens_tab_arousal_file <<- list(SUMMARY = tokens_tab, DETAILS = df_arousal)
 
     output$arousal_plots_file <- renderUI({
 
@@ -3968,12 +4007,18 @@ server <- function(input, output, session) {
                div(
                  h5("Arousal:"),
                  hr(),
+                 downloadButton("download_arousal_file", "Download Results as Excel"),
+                 hr(),
                  highchartOutput("arousal_plot_file")
                )),
         column(1),
         column(4,
                div(
                  h5("Arousal - Table:"),
+                 br(),
+                 br(),
+                 br(),
+                 br(),
                  hr(),
                  reactableOutput("arousal_table_file")
                )),
@@ -3981,6 +4026,16 @@ server <- function(input, output, session) {
       )
 
     })
+
+    # Summary Download Handler
+    output$download_arousal_file <- downloadHandler(
+      filename = function() {
+        paste("results_arousal_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(tokens_tab_arousal_file, file)
+      }
+    )
 
   })
 
@@ -4058,7 +4113,6 @@ server <- function(input, output, session) {
       )
     })
 
-
     output$valence_plots_file <- renderUI({
 
       fluidRow(
@@ -4067,12 +4121,18 @@ server <- function(input, output, session) {
                div(
                  h5("Valence:"),
                  hr(),
+                 downloadButton("download_valence_file", "Download Results as Excel"),
+                 hr(),
                  highchartOutput("valence_plot_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(1),
         column(4,
                div(
                  h5("Valence - Table:"),
+                 br(),
+                 br(),
+                 br(),
+                 br(),
                  hr(),
                  reactableOutput("valence_table_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
@@ -4080,6 +4140,18 @@ server <- function(input, output, session) {
       )
 
     })
+
+    tokens_tab_valence_file <<- list(SUMMARY = tokens_tab, DETAILS = df_valence)
+
+    # Summary Download Handler
+    output$download_valence_file <- downloadHandler(
+      filename = function() {
+        paste("results_valence_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(tokens_tab_valence_file, file)
+      }
+    )
 
   })
 
@@ -4157,7 +4229,6 @@ server <- function(input, output, session) {
       )
     })
 
-
     output$dominance_plots_file <- renderUI({
 
       fluidRow(
@@ -4166,12 +4237,18 @@ server <- function(input, output, session) {
                div(
                  h5("Dominance:"),
                  hr(),
+                 downloadButton("download_dominance_file", "Download Results as Excel"),
+                 hr(),
                  highchartOutput("dominance_plot_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(1),
         column(4,
                div(
                  h5("Dominance - Table:"),
+                 br(),
+                 br(),
+                 br(),
+                 br(),
                  hr(),
                  reactableOutput("dominance_table_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
@@ -4179,6 +4256,19 @@ server <- function(input, output, session) {
       )
 
     })
+
+    tokens_tab_dominance_file <<- list(SUMMARY = tokens_tab, DETAILS = df_dominance)
+
+
+    # Summary Download Handler
+    output$download_dominance_file <- downloadHandler(
+      filename = function() {
+        paste("results_dominance_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(tokens_tab_dominance_file, file)
+      }
+    )
 
   })
 
