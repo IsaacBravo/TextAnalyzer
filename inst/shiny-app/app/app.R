@@ -3286,7 +3286,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results_file <- tokens |> select(docs, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_bing_file <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results_file)
+
   })
+
+  # Summary Download Handler
+  output$download_bing_file <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_bing_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_bing_file, file)
+    }
+  )
 
   observeEvent(input$nrc_button_file, {
 
@@ -3395,7 +3409,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results_file <- tokens |> select(docs, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_nrc_file <<- list(SUMMARY = tokens_tab, DETAIL = tokens_results_file)
+
   })
+
+  # Summary Download Handler
+  output$download_nrc_file <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_nrc_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_nrc_file, file)
+    }
+  )
 
   observeEvent(input$loughran_button_file, {
 
@@ -3507,7 +3535,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results_file <- tokens |> select(docs, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_loughran_file <<- list(SUMMARY = tokens_tab_louv, DETAIL = tokens_results_file)
+
   })
+
+  # Summary Download Handler
+  output$download_loughran_file <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_loughran_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_loughran_file, file)
+    }
+  )
 
   observeEvent(input$afinn_button_file, {
 
@@ -3618,7 +3660,21 @@ server <- function(input, output, session) {
 
     })
 
+    tokens_results_file <- tokens |> select(docs, word = token_lower, sentiment) |> filter(!is.na(sentiment))
+
+    tokens_tab_afinn_file <<- list(SUMMARY = tokens_tab_afinn, DETAIL = tokens_results_file)
+
   })
+
+  # Summary Download Handler
+  output$download_afinn_file <- downloadHandler(
+    filename = function() {
+      paste("results_sentiment_affin_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(tokens_tab_afinn_file, file)
+    }
+  )
 
   ####### ----------- TAB 3: EMOTION ANALYSIS -------------------------- #######
 
