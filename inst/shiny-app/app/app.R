@@ -4385,7 +4385,16 @@ server <- function(input, output, session) {
               legend.text = element_text(face = "bold", size = 17))
     })
 
-
+    plt_lda_2 <- ap_top_terms %>%
+      mutate(term = reorder_within(term, beta, topic)) %>%
+      ggplot(aes(beta, term, fill = factor(topic))) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~ topic, scales = "free") +
+      scale_y_reordered() +
+      theme(axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            axis.text.y = element_text(size = 10),
+            strip.text = element_text(size = 18, face = "bold"))
 
     output$topics_file <- renderUI({
 
@@ -4394,12 +4403,25 @@ server <- function(input, output, session) {
         column(10,
                div(
                  h5("The terms that are most common within each topic:"),
+                 br(),
+                 downloadButton("download_lda_plt2", "Download Plot"),
                  hr(),
-                 plotOutput("lda_plot_file") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
+                 plotOutput("lda_plot") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(1)
       )
     })
+
+    # Summary Download Handler
+    output$download_lda_plt2 <- downloadHandler(
+      filename = function() {
+        paste("results_LDA_plt2_", Sys.Date(), ".png", sep = "")
+      },
+      content = function(file) {
+        ggsave(file, plot = plt_lda_2,
+               device = "png")
+      }
+    )
 
     output$topics_pie_file <- renderUI({
 
@@ -4431,7 +4453,19 @@ server <- function(input, output, session) {
       )
     })
 
+    results_lda_file <<- list(TOP_TERMS = ap_top_terms, SUMMARY = df_predominant_topic, DISTRIBUTION = topic_docs)
+
   })
+
+  # Summary Download Handler
+  output$download_lda_results_file <- downloadHandler(
+    filename = function() {
+      paste("results_LDA_", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      writexl::write_xlsx(results_lda_file, file)
+    }
+  )
 
   observeEvent(input$lda_test_button_file, {
 
