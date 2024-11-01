@@ -4393,7 +4393,7 @@ server <- function(input, output, session) {
       scale_y_reordered() +
       theme(axis.text = element_text(size = 16),
             axis.text.y = element_text(face = "bold"),
-            axis.text.y = element_text(size = 10),
+            axis.text.x = element_text(size = 10),
             strip.text = element_text(size = 18, face = "bold"))
 
     output$topics_file <- renderUI({
