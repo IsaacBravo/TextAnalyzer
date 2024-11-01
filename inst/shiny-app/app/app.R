@@ -4688,7 +4688,7 @@ server <- function(input, output, session) {
     corpus <- corpus(input_text)
     toks <- tokens(corpus, remove_punct = TRUE, remove_numbers = TRUE, remove_symbol = TRUE)
     toks <- tokens_remove(toks, pattern = c(stopwords("en"), "*-time", "updated-*", "gmt", "bst"))
-    dfm <- dfm(toks)
+    dfmt <- dfm(toks)
 
     return(dfmt)
 
@@ -4709,7 +4709,7 @@ server <- function(input, output, session) {
     corpus <- corpus(input_text)
     toks <- tokens(corpus, remove_punct = TRUE, remove_numbers = TRUE, remove_symbol = TRUE)
     toks <- tokens_remove(toks, pattern = c(stopwords("en"), "*-time", "updated-*", "gmt", "bst"))
-    dfm <- dfm(toks)
+    dfmt <- dfm(toks)
 
     return(dfmt)
 
