@@ -700,20 +700,33 @@ ui <- fluidPage(
                      conditionalPanel(
                        condition = "input.dict_type2 === 'create_dictionary'",
                        # UI for creating a new dictionary
-                       uiOutput("customDictionaryUI2"),
-
-                       # Button to trigger dictionary creation and display
-                       actionButton("create_dict2", "Create/Display Dictionary", style = "margin-top: 20px;", class = "btn-summary"),
-
-                       # Output area for displaying the dictionary
-                       br(),
                        fluidRow(
-                         column(3),
-                         column(6, align = "center", br(), verbatimTextOutput("display_dict2")),
-                         column(3)),
-                       br(),
-                       fluidRow(column(12, align = "center",
-                                       actionButton("seededlda_button_file_custom2", "Run Seeded LDA Model", class = "btn-summary")))
+                         br(),
+                         fluidRow(
+                           column(2),
+                           column(3, align = "center", textInput("category_name", "Enter Category Name:")),
+                           column(2),
+                           column(3, textAreaInput("related_words", "Add Related Words (comma-separated):", height = '100px')),
+                           column(2)
+                         ),
+                         br(),
+                         fluidRow(
+                           column(4),
+                           column(5, align = "center",
+                                  br(),
+                                  actionButton("create_dict2", "Create/Display Dictionary", style = "margin-top: 20px;", class = "btn-summary"),
+                                  hr(),
+                                  verbatimTextOutput("display_dict2"),
+                                  hr()),
+                           column(3)
+                         ),
+                         br(),
+                         fluidRow(
+                           column(4),
+                           column(5, align = "center", actionButton("seededlda_button_file_custom2", "Run Seeded LDA Model", class = "btn-summary")),
+                           column(3)
+                         )
+                       )
                      )
 
                    ),
@@ -2446,16 +2459,6 @@ server <- function(input, output, session) {
       })
     }
   }, ignoreNULL = FALSE)
-
-  # Add UI elements conditionally
-  # output$customDictionaryUI <- renderUI({
-  #   if (input$dict_type == "create_dictionary") {
-  #     fluidRow(
-  #       column(6, textInput("category_name", "Enter Category Name:")),
-  #       column(6, textAreaInput("related_words", "Add Related Words (comma-separated):", height = '100px'))
-  #     )
-  #   }
-  # })
 
   # Listen for changes in the input 'dict_type'
   observeEvent(input$seededlda_button_file_default, {
@@ -4741,16 +4744,6 @@ server <- function(input, output, session) {
     }
   }, ignoreNULL = FALSE)
 
-  # Add UI elements conditionally
-  output$customDictionaryUI2 <- renderUI({
-    if (input$dict_type2 == "create_dictionary") {
-      fluidRow(
-        column(6, textInput("category_name", "Enter Category Name:")),
-        column(6, textAreaInput("related_words", "Add Related Words (comma-separated):", height = '100px'))
-      )
-    }
-  })
-
   # Listen for changes in the input 'dict_type'
   observeEvent(input$seededlda_button_file_default2, {
 
@@ -4911,6 +4904,17 @@ server <- function(input, output, session) {
       mutate(percent = round((total/sum(total)), 3),
              label = paste0("Topic ", topic2, ": ", percent*100, "%"))
 
+    seedlda_results_custom_file <<- list(SUMMARY = dominant_topic, DETAILS = as.data.frame(terms(lda_seed2, n = 20)))
+
+    plt_seedlda_2_file <- ggplot(dominant_topic, aes(x = "", y = percent, fill = label)) +
+      geom_bar(stat = "identity") +
+      coord_polar(theta = "y") +
+      labs(title = "Topic Distribution") +
+      theme_void() +
+      theme(axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            strip.text = element_text(size = 18, face = "bold"))
+
     output$seededlda_plot_pie_custom <- renderHighchart({
 
       hchart(dominant_topic,
@@ -4922,7 +4926,6 @@ server <- function(input, output, session) {
 
     # Render LDA Results Table
     output$ldaTable4 <- renderUI({
-
       fluidRow(
         hr(),
         h5(HTML("<b>Results by Custom Dictionary:</b>")),
@@ -4931,6 +4934,8 @@ server <- function(input, output, session) {
                  br(),
                  h5("SeededLDA Results:"),
                  br(),
+                 downloadButton("download_seed_table_custom_file", "Download Results"),
+                 hr(),
                  reactableOutput("ldaResults_custom") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(6,
@@ -4938,10 +4943,34 @@ server <- function(input, output, session) {
                  br(),
                  h5("Distribution across Topics in Text:"),
                  br(),
+                 downloadButton("download_seed_plt2_file", "Download Plot"),
+                 hr(),
                  highchartOutput("seededlda_plot_pie_custom") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                ))
       )
     })
+
+
+    # Summary Download Handler
+    output$download_seed_table_custom_file <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(seedlda_results_custom_file, file)
+      }
+    )
+
+    # Summary Download Handler
+    output$download_seed_plt2_file <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_plt2_", Sys.Date(), ".png", sep = "")
+      },
+      content = function(file) {
+        ggsave(file, plot = plt_seedlda_2_file,
+               device = "png")
+      }
+    )
   })
 
 
