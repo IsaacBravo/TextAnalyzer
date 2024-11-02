@@ -4805,6 +4805,16 @@ server <- function(input, output, session) {
 
     })
 
+    seedlda_results_file <<- list(SUMMARY = dominant_topic_file, DETAILS = as.data.frame(terms(lda_seed_file, n = 20)))
+
+    plt_seedlda_1_file <- ggplot(dominant_topic_file, aes(x = "", y = percent, fill = label)) +
+      geom_bar(stat = "identity") +
+      coord_polar(theta = "y") +
+      labs(title = "Topic Distribution") +
+      theme_void() +
+      theme(axis.text = element_text(size = 16),
+            axis.text.y = element_text(face = "bold"),
+            strip.text = element_text(size = 18, face = "bold"))
 
     # Render LDA Results Table
     output$ldaTable3 <- renderUI({
@@ -4813,8 +4823,11 @@ server <- function(input, output, session) {
         h5(HTML("<b>Results by Default Dictionary:</b>")),
         column(6,
                div(
+                 br(),
                  h5("SeededLDA Results:"),
                  br(),
+                 downloadButton("download_seed_table_file", "Download Results"),
+                 hr(),
                  reactableOutput("ldaResults2") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                )),
         column(6,
@@ -4822,11 +4835,33 @@ server <- function(input, output, session) {
                  br(),
                  h5("Distribution across Topics in Text:"),
                  br(),
+                 downloadButton("download_seed_plt1_file", "Download Plot"),
+                 hr(),
                  highchartOutput("seededlda_plot_pie2") |> shinycssloaders::withSpinner(color="#0dc5c1", type = 5)
                ))
       )
     })
 
+    # Summary Download Handler
+    output$download_seed_table_file <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        writexl::write_xlsx(seedlda_results_file, file)
+      }
+    )
+
+    # Summary Download Handler
+    output$download_seed_plt1_file <- downloadHandler(
+      filename = function() {
+        paste("results_SEEDLDA_plt1_", Sys.Date(), ".png", sep = "")
+      },
+      content = function(file) {
+        ggsave(file, plot = plt_seedlda_1_file,
+               device = "png")
+      }
+    )
 
   })
 
