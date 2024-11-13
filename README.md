@@ -1,8 +1,6 @@
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/TextAnalyzer)](https://CRAN.R-project.org/package=TextAnalyzer)
+[![CRAN status](https://www.r-pkg.org/badges/version/TextAnalyzer)](https://CRAN.R-project.org/package=TextAnalyzer)
 
 # Text Analysis Shiny App Package
 
@@ -26,8 +24,6 @@ This app focuses on making life easier for researchers looking to explore insigh
 
 -   **SeededLDA:** Explore your data in depth by defining your own topics and test them on the dataset.
 
-
-
 ## Installation
 
 To install the Text Analysis Shiny App Package, you can use the `devtools` package:
@@ -46,3 +42,19 @@ Load the package and initiate the Shiny app with the following commands:
 library(TextAnalyzer)
 TextAnalyzer::run_TextAnalyzer()
 ```
+
+## Citation
+
+Please cite TextAnalyzer if you use it for your publications:
+
+      Isaac Bravo (2024). TextAnalyzer: A Shiny Application for Automatic Text Analysis
+      https://github.com/IsaacBravo/TextAnalyzer
+
+A BibTeX entry for LaTeX users is:
+
+      @Manual{,
+        title = {TextAnalyzer: A Shiny Application for Automatic Text Analysis},
+        author = {Isaac Bravo},
+        year = {2024},
+        url = {https://github.com/IsaacBravo/TextAnalyzer},
+      }
